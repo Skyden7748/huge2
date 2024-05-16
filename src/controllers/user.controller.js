@@ -135,15 +135,15 @@ const loginUser = asyncHandler(async (req, res) => {
     }
 
 
-    return res.status(200).cookie("access_token", accessToken, options)
-    .cookie("refresh_token", refreshToken, options)
+    return res.status(200).cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
     .json(
         new ApiResponse(
             200,
             {
                 user: loggedinUser,
-                accessToken: accessToken,
-                refreshToken: refreshToken
+                accessToken,
+                refreshToken
             },
             "user logged in successfully"
         )
@@ -160,7 +160,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         req.user._id, 
         {
           $set: {
-              refreshToken: undefined // humare refreshToken ko empty kar diya
+              refreshToken: undefined //this removes the field from document
 
           }
         },
@@ -178,7 +178,28 @@ const logoutUser = asyncHandler(async (req, res) => {
     .status(200)
     .clearCookie("accessToken", options)
     .clearCookie("refreshToken", options)
-    .json(new ApiResponse(200, null, "user logged out successfully"))
+    .json(
+        new ApiResponse(
+        200,
+        {},
+        "user logged out successfully"))
+})
+const refreshAccessToken = asyncHandler(async(req,res) => 
+    {
+
+     const incomingRefreshToken = req.cookies.refreshtoken || req.body.refreshToken
+
+     if(!incomingRefreshToken){
+        throw new ApiError(401,"unauthorized request of incoming refresh token")
+     }
+
+     
+     try {
+        
+     } catch (error) {
+        throw new ApiError(401,error?.message)
+     }
+
 })
 
 
@@ -187,5 +208,6 @@ const logoutUser = asyncHandler(async (req, res) => {
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAccessToken
 } 
